@@ -1,0 +1,7 @@
+{
+  "name": "dj-ayussito",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
