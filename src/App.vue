@@ -6,4 +6,13 @@
 
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
+
+
+// export default {
+// 	name: 'HelloWorld',
+// 	props: {
+// 		msg: String
+// 	}
+// };
+
 </script>
