@@ -154,8 +154,8 @@ const cargarDatos = async () => {
 }
 
 .scrollable-list {
-  max-height: 300px; /* Define la altura máxima del contenedor */
-  overflow-y: auto;  /* Habilita el desplazamiento vertical */
+  max-height: 500px; 
+  overflow-y: auto;  
 }
 
 .example-content {
@@ -164,6 +164,6 @@ const cargarDatos = async () => {
 }
 
 ion-content {
-  --background: #0a41e583; /* Cambia el fondo si lo deseas */
+  --background: #0a41e583; 
 }
 </style>
