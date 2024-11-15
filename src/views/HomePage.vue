@@ -1,15 +1,16 @@
 <template>
   <ion-page>
+    <!-- Centrado del título principal -->
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>AyussitoMusic</ion-title>
+        <ion-title class="center-title">AyussitoMusic</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
+          <ion-title size="large">AyussitoMusic</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -35,6 +36,8 @@
                   </ion-item>
                 </ion-list>
               </div>
+              <!-- Barra de búsqueda -->
+              <ion-searchbar placeholder="Buscar artista..." @ionInput="buscarArtista"></ion-searchbar>
             </ion-card-content>
           </ion-card>
         </ion-tab>
@@ -51,6 +54,7 @@
             </ion-content>
           </div>
         </ion-tab>
+
         <ion-tab tab="library">
           <div id="library-page">
             <ion-header>
@@ -63,6 +67,7 @@
             </ion-content>
           </div>
         </ion-tab>
+
         <ion-tab tab="search">
           <div id="search-page">
             <ion-header>
@@ -100,7 +105,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonTabs, IonTab, IonTabBar, IonTabButton, IonIcon } from '@ionic/vue';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonTabs, IonTab, IonTabBar, IonTabButton, IonIcon, IonSearchbar } from '@ionic/vue';
 import { playCircle, radio, library, search, peopleOutline, musicalNotesOutline } from 'ionicons/icons';
 
 const icons = {
@@ -112,50 +117,46 @@ const icons = {
   musicalNotesOutline,
 };
 
-onMounted(async () => { // cuando se arranca la app
-  await cargarDatos(); // llama a cargar datos
+onMounted(async () => {
+  await cargarDatos();
 });
 
-// Definimos las propiedades de cada artista
 interface Artista {
   artista: string;
   desc: string;
   foto: string;
 }
 
-// Donde vamos a volcar el JSON para que sea parte de la app
-const datos = ref<Artista[]>([]); // Define el tipo explícitamente
+const datos = ref<Artista[]>([]);
+const datosFiltrados = ref<Artista[]>([]);
 
-// Funcion para cargar datos
 const cargarDatos = async () => {
   const ruta = "src/artistas.json";
-  // Cargar JSON
   fetch(ruta)
     .then(response => response.json())
     .then(data => {
       datos.value = data.artistas;
-      console.log(datos.value);
-      console.log(datos.value[0].artista); // Ejemplo de acceso a los datos
+      datosFiltrados.value = data.artistas;
     })
     .catch(error => {
       console.log("Hubo errores cargando", error);
     });
 };
+
+const buscarArtista = (event: any) => {
+  const query = event.target.value.toLowerCase();
+  datosFiltrados.value = datos.value.filter((artista) => artista.artista.toLowerCase().includes(query));
+};
 </script>
 
 <style scoped>
-#container {
+.center-title {
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .scrollable-list {
-  max-height: 500px; 
-  overflow-y: auto;  
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .example-content {
@@ -164,6 +165,6 @@ const cargarDatos = async () => {
 }
 
 ion-content {
-  --background: #0a41e583; 
+  --background: #f4f5f8;
 }
 </style>
