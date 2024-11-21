@@ -57,12 +57,14 @@
               <div class="scrollable-songs">
                 <ion-list v-if="cancionesFiltradas.length > 0">
                   <ion-item v-for="(cancion, index) in cancionesFiltradas" :key="index">
-                    <ion-label>{{ cancion }}</ion-label>
-                    <ion-button @click="togglePreescucha(cancion)">
+                    <ion-label>{{ cancion.nombreC }}</ion-label>
+                    <!-- <ion-button @click="togglePreescucha(cancion)">
                       <ion-icon :icon="preescuchaActiva === cancion ? icons.pause : icons.play"></ion-icon>
-                    </ion-button>
-                    <ion-range v-if="preescuchaActiva === cancion" min:0 max:1 step:0.1 @ionChange="ajustarVolumen"></ion-range>
-                    <ion-button @click="enviarCancion(cancion)">Enviar</ion-button>
+                    </ion-button> -->
+
+                    <!-- <ion-range v-if="preescuchaActiva === cancion" min:0 max:1 step:0.1 @ionChange="ajustarVolumen"></ion-range>
+                     -->
+                    <ion-button @click="enviarCancion(cancion.nombreC)">Enviar</ion-button>
                   </ion-item>
                 </ion-list>
                 <p v-else class="no-results-message">No está disponible</p> <!-- Mensaje cuando no hay resultados -->
@@ -71,14 +73,35 @@
           </div>
         </ion-tab>
 
+        <ion-tab tab="todas">
+          <!-- <p>Ejemplo</p> -->
+           <div class="scrollable-songs">
+
+            <ion-list v-if="todasCanciones.length > 0">
+                  <ion-item v-for="(cancion, index) in todasCanciones" :key="index">
+                    <ion-label>{{ cancion.nombreC }}</ion-label>
+                    <!-- <ion-button @click="togglePreescucha(cancion)">
+                      <ion-icon :icon="preescuchaActiva === cancion ? icons.pause : icons.play"></ion-icon>
+                    </ion-button> -->
+
+                    <!-- <ion-range v-if="preescuchaActiva === cancion" min:0 max:1 step:0.1 @ionChange="ajustarVolumen"></ion-range>
+                     -->
+                    <ion-button @click="enviarCancion(cancion.nombreC)">Enviar</ion-button>
+                  </ion-item>
+                </ion-list>
+                <p v-else class="no-results-message">No está disponible</p> <!-- Mensaje cuando no hay resultados -->
+
+           </div>
+        </ion-tab>
+
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="home">
             <ion-icon :icon="icons.peopleOutline" />
             Artistas
           </ion-tab-button>
-          <ion-tab-button tab="radio">
+          <ion-tab-button tab="todas">
             <ion-icon :icon="icons.musicalNotesOutline" />
-            Canciones del artista
+            Todas las canciones
           </ion-tab-button>
           <ion-tab-button tab="library">
             <ion-icon :icon="icons.library" />
@@ -92,6 +115,7 @@
     </ion-content>
   </ion-page>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
@@ -112,12 +136,18 @@ interface Artista {
   artista: string;
   desc: string;
   foto: string;
+  canciones: Cancion[];
+}
+
+interface Cancion {
+  nombreC: string;
 }
 
 const datos = ref<Artista[]>([]);
 const datosFiltrados = ref<Artista[]>([]);
-const canciones = ref<string[]>([]);
-const cancionesFiltradas = ref<string[]>([]);
+const canciones = ref<Cancion[]>([]);
+const cancionesFiltradas = ref<Cancion[]>([]);
+const todasCanciones = ref<Cancion[]>([]);
 
 // Control de modal y artista seleccionado
 const mostrarModalCanciones = ref(false);
@@ -130,18 +160,35 @@ onMounted(async () => {
   await cargarDatos();
 });
 
+
+
 const cargarDatos = async () => {
-  const ruta = "src/artistas.json";
+  const ruta = "public/data/artistas.json";
   fetch(ruta)
     .then(response => response.json())
     .then(data => {
       datos.value = data.artistas;
       datosFiltrados.value = data.artistas;
+      
+      datos.value.forEach(artista => {
+        //console.log(artista.canciones[0]);
+        for (let i=0;i<artista.canciones.length;i++){
+          console.log(artista.canciones[i])
+          todasCanciones.value.push(artista.canciones[i])
+        }
+        console.log("Cargadas");
+        
+      });
+
     })
     .catch(error => {
       console.log("Hubo errores cargando", error);
     });
 };
+
+const cargarTodas = async ()  => {
+  
+}
 
 // Función para filtrar artistas en la búsqueda
 const buscarArtista = (event: any) => {
@@ -152,7 +199,9 @@ const buscarArtista = (event: any) => {
 // Función para mostrar canciones de un artista
 const mostrarCanciones = (artista: Artista) => {
   artistaSeleccionado.value = artista;
-  canciones.value = generarCancionesAleatorias();
+  canciones.value=artista.canciones;
+  //canciones.value = generarCancionesAleatorias();
+  //cancionesFiltradas.value = canciones.value;
   cancionesFiltradas.value = canciones.value;
   mostrarModalCanciones.value = true;
 };
@@ -199,7 +248,7 @@ const ajustarVolumen = (event: any) => {
 // Búsqueda de canciones
 const buscarCancion = (event: any) => {
   const query = event.target.value.toLowerCase();
-  cancionesFiltradas.value = canciones.value.filter((cancion) => cancion.toLowerCase().includes(query));
+  cancionesFiltradas.value = canciones.value.filter((cancion) => cancion.nombreC.toLowerCase().includes(query));
 };
 
 // Acción al enviar una canción
@@ -240,7 +289,7 @@ const enviarCancion = (cancion: string) => {
 }
 
 .scrollable-songs {
-  max-height: 300px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
@@ -251,3 +300,4 @@ const enviarCancion = (cancion: string) => {
   margin-top: 10px;
 }
 </style>
+
