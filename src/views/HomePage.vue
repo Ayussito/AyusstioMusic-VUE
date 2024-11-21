@@ -117,7 +117,7 @@
 </template>
 
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonTabs, IonTab, IonTabBar, IonTabButton, IonIcon, IonButton, IonRange } from '@ionic/vue';
 import { playCircle, pauseCircle, radio, library, search, peopleOutline, musicalNotesOutline } from 'ionicons/icons';
@@ -132,77 +132,45 @@ const icons = {
   musicalNotesOutline,
 };
 
-interface Artista {
-  artista: string;
-  desc: string;
-  foto: string;
-  canciones: Cancion[];
-}
+const datos = ref([]);
+const datosFiltrados = ref([]);
+const canciones = ref([]);
+const cancionesFiltradas = ref([]);
+const todasCanciones = ref([]);
 
-interface Cancion {
-  nombreC: string;
-}
-
-const datos = ref<Artista[]>([]);
-const datosFiltrados = ref<Artista[]>([]);
-const canciones = ref<Cancion[]>([]);
-const cancionesFiltradas = ref<Cancion[]>([]);
-const todasCanciones = ref<Cancion[]>([]);
-
-// Control de modal y artista seleccionado
 const mostrarModalCanciones = ref(false);
-const artistaSeleccionado = ref<Artista | null>(null);
-const preescuchaActiva = ref<string | null>(null);
+const artistaSeleccionado = ref(null);
+const preescuchaActiva = ref(null);
 let audio = new Audio();
 
-// Cargar datos iniciales de los artistas
-onMounted(async () => {
-  await cargarDatos();
-});
 
 
 
-const cargarDatos = async () => {
-  const ruta = "public/data/artistas.json";
-  fetch(ruta)
-    .then(response => response.json())
-    .then(data => {
-      datos.value = data.artistas;
-      datosFiltrados.value = data.artistas;
-      
-      datos.value.forEach(artista => {
-        //console.log(artista.canciones[0]);
-        for (let i=0;i<artista.canciones.length;i++){
-          console.log(artista.canciones[i])
-          todasCanciones.value.push(artista.canciones[i])
-        }
-        console.log("Cargadas");
-        
+import data from "../../public/data/artistas.json";
+ 
+    datos.value = data.artistas;
+    datosFiltrados.value = [...data.artistas];
+    
+    datos.value.forEach(artista => {
+      artista.canciones.forEach(cancion => {
+        todasCanciones.value.push(cancion);
       });
-
-    })
-    .catch(error => {
-      console.log("Hubo errores cargando", error);
     });
-};
-
-const cargarTodas = async ()  => {
   
-}
 
 // Función para filtrar artistas en la búsqueda
-const buscarArtista = (event: any) => {
+const buscarArtista = (event) => {
   const query = event.target.value.toLowerCase();
-  datosFiltrados.value = datos.value.filter((artista) => artista.artista.toLowerCase().includes(query));
+  datosFiltrados.value = datos.value.filter(artista =>
+    artista.artista.toLowerCase().includes(query)
+  );
 };
 
 // Función para mostrar canciones de un artista
-const mostrarCanciones = (artista: Artista) => {
+const mostrarCanciones = (artista) => {
   artistaSeleccionado.value = artista;
-  canciones.value=artista.canciones;
-  //canciones.value = generarCancionesAleatorias();
-  //cancionesFiltradas.value = canciones.value;
-  cancionesFiltradas.value = canciones.value;
+  canciones.value = artista.canciones;
+  cancionesFiltradas.value = [...canciones.value];
   mostrarModalCanciones.value = true;
 };
 
@@ -212,13 +180,8 @@ const cerrarModal = () => {
   detenerPreescucha();
 };
 
-// Generar una lista de canciones aleatorias (para ejemplo)
-const generarCancionesAleatorias = () => {
-  return Array.from({ length: 15 }, (_, i) => `Canción ${i + 1}`);
-};
-
 // Función para preescuchar una canción
-const togglePreescucha = (cancion: string) => {
+const togglePreescucha = (cancion) => {
   if (preescuchaActiva.value === cancion) {
     detenerPreescucha();
   } else {
@@ -226,7 +189,7 @@ const togglePreescucha = (cancion: string) => {
   }
 };
 
-const iniciarPreescucha = (cancion: string) => {
+const iniciarPreescucha = (cancion) => {
   detenerPreescucha();
   preescuchaActiva.value = cancion;
   audio = new Audio("ruta/a/la/cancion");
@@ -241,21 +204,24 @@ const detenerPreescucha = () => {
 };
 
 // Ajustar el volumen
-const ajustarVolumen = (event: any) => {
+const ajustarVolumen = (event) => {
   if (audio) audio.volume = event.detail.value;
 };
 
 // Búsqueda de canciones
-const buscarCancion = (event: any) => {
+const buscarCancion = (event) => {
   const query = event.target.value.toLowerCase();
-  cancionesFiltradas.value = canciones.value.filter((cancion) => cancion.nombreC.toLowerCase().includes(query));
+  cancionesFiltradas.value = canciones.value.filter(cancion =>
+    cancion.nombreC.toLowerCase().includes(query)
+  );
 };
 
 // Acción al enviar una canción
-const enviarCancion = (cancion: string) => {
+const enviarCancion = (cancion) => {
   console.log(`Enviando la canción: ${cancion}`);
 };
 </script>
+
 
 <style scoped>
 .center-title {
